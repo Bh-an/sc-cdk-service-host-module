@@ -30,7 +30,7 @@ const project = new AwsCdkConstructLibrary({
   publishToGo: {
     gitUserEmail: 'bhan.16070@gmail.com',
     gitUserName: 'sc-infra-bot',
-    moduleName: 'github.com/Bh-an/cdk-ec2-service-module-go',
+    moduleName: 'github.com/Bh-an/sc-cdk-ec2-service-module-go',
   },
   devDeps: [
     `aws-cdk-lib@${cdkVersion}`,
