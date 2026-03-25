@@ -1,4 +1,4 @@
-name: Deploy Go App With sc-terraform-ec2-service-module
+name: Deploy Go App With sc-tf-ec2-service-module
 
 on:
   workflow_dispatch:
