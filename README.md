@@ -38,6 +38,14 @@ Reference integration material lives in:
 
 - `docs/consumer-cicd.md`
 - `.github/workflow-templates/consumer-app-deploy.yml`
+- `examples/consumer-proof-stack.ts`
+
+The consumer proof example now validates both postures together:
+
+- a direct public/default service
+- a private service behind a caller-managed ALB
+
+For the private path, the ALB forwards to the EC2 host’s Nginx listener. Nginx still proxies to the Dockerized application, preserving the assignment-aligned service shape.
 
 ## Local Verification
 
