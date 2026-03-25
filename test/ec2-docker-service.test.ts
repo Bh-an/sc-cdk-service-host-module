@@ -47,7 +47,7 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
     additionalTags: {
       Team: 'platform',
     },
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     identity: {
       displayName: 'Public API',
       namePrefix: 'dev',
@@ -128,7 +128,7 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   expect(renderedTemplate).toContain('"Key":"Environment","Value":"dev"');
   expect(renderedTemplate).toContain('"Key":"ManagedBy","Value":"CDK"');
   expect(renderedTemplate).toContain('"Key":"Team","Value":"platform"');
-  expect(renderedTemplate).toContain('docker pull ec2-go-service:latest');
+  expect(renderedTemplate).toContain('docker pull ghcr.io/bh-an/ec2-go-service:latest');
   expect(renderedTemplate).toContain('docker rm -f dev-ec2-go-service');
   expect(renderedTemplate).toContain('docker network create');
   expect(renderedTemplate).toContain('curl -sf http://localhost:80/health >/dev/null');
@@ -158,7 +158,7 @@ test('reuses caller-provided security, role, and kms resources and can disable e
         port: 8080,
       },
     ],
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     enableElasticIp: false,
     infrastructure: {
       kmsKey: sharedKey,
@@ -211,7 +211,7 @@ test('supports private-subnet caller-managed ingress and operational controls', 
         sourceSecurityGroup: ingressSecurityGroup,
       },
     ],
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     infrastructure: {
       subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       vpc,
@@ -268,7 +268,7 @@ test('supports multiple services in the same vpc without resource collisions', (
   const vpc = createVpc(stack, 'ExistingVpc', '10.30.0.0/16');
 
   const api = new Ec2DockerService(stack, 'Api', {
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     identity: {
       namePrefix: 'dev',
     },

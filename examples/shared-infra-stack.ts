@@ -49,7 +49,7 @@ export class SharedInfrastructureStack extends cdk.Stack {
       additionalTags: {
         Team: 'platform',
       },
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Public API',
         namePrefix: 'dev',
@@ -74,7 +74,7 @@ export class SharedInfrastructureStack extends cdk.Stack {
           sourceSecurityGroup: ingressSecurityGroup,
         },
       ],
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Internal Tools',
         namePrefix: 'dev',
