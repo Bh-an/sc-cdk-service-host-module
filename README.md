@@ -37,7 +37,8 @@ This repo publishes the reusable module. A consumer app repo is expected to be a
 Reference integration material lives in:
 
 - `docs/consumer-cicd.md`
-- `.github/workflow-templates/consumer-app-deploy.yml`
+- `.github/workflow-templates/consumer-app-deploy-go-cdk.yml`
+- `.github/workflow-templates/consumer-app-deploy-terraform.yml`
 - `examples/consumer-proof-stack.ts`
 
 The consumer proof example now validates both postures together:
@@ -65,3 +66,5 @@ npm run verify
 ## Status
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the behavioral reference baseline.
+
+Current release line: `0.1.0`

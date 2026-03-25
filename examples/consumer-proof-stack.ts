@@ -36,7 +36,7 @@ export class ConsumerProofStack extends cdk.Stack {
       additionalTags: {
         Consumer: 'proof',
       },
-      dockerImage: 'bhan/ec2-go-service:latest',
+      dockerImage: 'ec2-go-service:latest',
       identity: {
         displayName: 'Public API',
         namePrefix: 'proof',
@@ -72,7 +72,7 @@ export class ConsumerProofStack extends cdk.Stack {
           sourceSecurityGroup: albSecurityGroup,
         },
       ],
-      dockerImage: 'bhan/ec2-go-service:latest',
+      dockerImage: 'ec2-go-service:latest',
       identity: {
         displayName: 'Private API',
         namePrefix: 'proof',
