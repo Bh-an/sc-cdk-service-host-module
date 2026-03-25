@@ -16,6 +16,7 @@ jobs:
     env:
       AWS_REGION: ap-south-1
       ECR_REPOSITORY: your-app-repository
+      GO_VERSION: '1.24'
       IMAGE_TAG: ${{ github.sha }}
       INFRA_DIRECTORY: infra
 
@@ -27,6 +28,10 @@ jobs:
           node-version: 20
           cache: npm
 
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -37,7 +42,15 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Build application image
+      - name: Run Go tests
+        working-directory: ./app
+        run: go test ./...
+
+      - name: Build Go binary
+        working-directory: ./app
+        run: go build ./...
+
+      - name: Build Go application image
         run: |
           docker build \
             -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \

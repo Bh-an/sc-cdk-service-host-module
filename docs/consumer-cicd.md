@@ -9,6 +9,13 @@ A consumer app repo should:
 3. pass the image reference into a CDK stack that consumes `cdk-ec2-service-module`
 4. deploy that consumer stack
 
+For this module family, treat the consumer app as a Go application repo by default.
+That means:
+
+- the application source is expected to be Go
+- the deploy workflow should validate and build the Go app before packaging the Docker image
+- the infrastructure consumer can still be Go CDK or another supported consumer path, but the app itself is assumed to be Go
+
 ## Expected Consumer Inputs
 
 The consumer stack should provide:
@@ -25,7 +32,12 @@ The consumer stack should provide:
 
 ### 1. Build and push the image
 
-The app repo should build its Docker image and push it to the registry it already uses, such as ECR.
+The Go app repo should:
+
+- run Go tests
+- optionally build the Go binary as an explicit validation step
+- build its Docker image
+- push that image to the registry it already uses, such as ECR
 
 The resulting image tag should be injected into the consumer CDK deploy step.
 
@@ -35,7 +47,7 @@ The consumer CDK stack should treat this package as an infrastructure dependency
 
 Recommended pattern:
 
-- app repo contains its own infra stack
+- Go app repo contains its own infra stack
 - infra stack imports this module
 - workflow deploys the infra stack after image push
 
@@ -63,6 +75,7 @@ This repo currently supports:
 
 - public/default EC2 service deployment
 - private/internal EC2 service deployment
+- Go application consumer repos as the default integration assumption
 - CIDR-based ingress rules
 - source-security-group ingress rules
 - normalized service outputs for endpoint and exposure posture

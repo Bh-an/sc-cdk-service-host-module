@@ -28,7 +28,7 @@ Both variants share:
 
 ## Consumer CI/CD
 
-This repo publishes the reusable module. A consumer app repo should own:
+This repo publishes the reusable module. A consumer app repo is expected to be a Go application repo and should own:
 
 - Docker image build and push
 - environment-specific CDK stack code
