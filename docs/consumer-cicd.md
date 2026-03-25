@@ -6,8 +6,11 @@ A consumer app repo should:
 
 1. build the application image
 2. push the image to the target registry
-3. pass the image reference into a CDK stack that consumes `cdk-ec2-service-module`
-4. deploy that consumer stack
+3. choose one of its consumer infra paths:
+   - Terraform consumer stack
+   - Go CDK consumer stack
+4. pass the image reference into that deploy path
+5. deploy that consumer stack
 
 For this module family, treat the consumer app as a Go application repo by default.
 That means:
@@ -18,7 +21,7 @@ That means:
 
 ## Expected Consumer Inputs
 
-The consumer stack should provide:
+The CDK consumer stack should provide:
 
 - `dockerImage`
 - an existing `vpc`
@@ -43,13 +46,14 @@ The resulting image tag should be injected into the consumer CDK deploy step.
 
 ### 2. Consume the module in the app infra stack
 
-The consumer CDK stack should treat this package as an infrastructure dependency and pass the pushed image reference into the service construct.
+The consumer Go CDK stack should treat this package as an infrastructure dependency and pass the pushed image reference into the service construct.
 
 Recommended pattern:
 
-- Go app repo contains its own infra stack
-- infra stack imports this module
-- workflow deploys the infra stack after image push
+- Go app repo contains its own `infra/terraform/` and `infra/cdk/` directories
+- the CDK path imports this module
+- the Terraform path imports the shared Terraform modules from the Terraform repo
+- each deploy workflow selects the path it is responsible for after image push
 
 For an ALB-backed private service:
 
@@ -91,4 +95,4 @@ Use `examples/consumer-proof-stack.ts` for the in-repo consumer proof of:
 
 ## Reference Workflow
 
-Use `.github/workflow-templates/consumer-app-deploy.yml` in this repo as a reference for the consumer-side workflow shape.
+Use `.github/workflow-templates/consumer-app-deploy.yml` in this repo as a reference for the CDK-side consumer workflow shape.
