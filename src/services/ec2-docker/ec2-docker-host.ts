@@ -9,6 +9,7 @@ import {
   NetworkAddressableServiceOutputs,
   PlatformServiceProps,
   ResolvedPlatformServiceIdentity,
+  ServiceExposureKind,
   ServiceInfrastructureProps,
   applyTags,
   buildResourceName,
@@ -23,6 +24,7 @@ import { Ec2DockerServiceRuntimeProps, IngressRule } from './types';
 interface Ec2DockerHostDefaults {
   readonly associatePublicIpAddress: boolean;
   readonly defaultIngressRules: IngressRule[];
+  readonly exposureKind: ServiceExposureKind;
   readonly enableElasticIp: boolean;
 }
 
@@ -41,6 +43,41 @@ export interface Ec2DockerHostResources {
   readonly securityGroup: ec2.ISecurityGroup;
   readonly serviceIdentity: ResolvedPlatformServiceIdentity;
   readonly serviceOutputs: NetworkAddressableServiceOutputs;
+}
+
+export interface ResolveEc2ServiceExposureOptions {
+  readonly defaultExposureKind: ServiceExposureKind;
+  readonly legacyAssociatePublicIpAddress: boolean;
+  readonly legacyDefaultIngressRules: IngressRule[];
+  readonly legacyEnableElasticIp: boolean;
+  readonly privateVpcCidr: string;
+  readonly publicPort: number;
+  readonly requestedExposure?: Ec2DockerServiceRuntimeProps['exposure'];
+}
+
+export function resolveEc2ServiceExposure(
+  options: ResolveEc2ServiceExposureOptions,
+): Ec2DockerHostDefaults {
+  if (!options.requestedExposure) {
+    return {
+      associatePublicIpAddress: options.legacyAssociatePublicIpAddress,
+      defaultIngressRules: options.legacyDefaultIngressRules,
+      exposureKind: options.legacyEnableElasticIp ? 'module-public' : options.defaultExposureKind,
+      enableElasticIp: options.legacyEnableElasticIp,
+    };
+  }
+
+  const exposureKind = options.requestedExposure.kind ?? options.defaultExposureKind;
+  return {
+    associatePublicIpAddress:
+      options.requestedExposure.associatePublicIpAddress ??
+      (exposureKind === 'module-public'),
+    defaultIngressRules: defaultIngressRulesForExposure(exposureKind, options.privateVpcCidr, options.publicPort),
+    exposureKind,
+    enableElasticIp:
+      options.requestedExposure.enableElasticIp ??
+      (exposureKind === 'module-public'),
+  };
 }
 
 export function createEc2DockerHostResources(
@@ -62,12 +99,13 @@ export function createEc2DockerHostResources(
   const tags = serviceIdentity.tags;
 
   const role = resolveRole(scope, props.infrastructure, serviceIdentity);
+  applyRoleOperationalControls(role, props.operations);
   const dataKey = resolveKey(scope, props.infrastructure, serviceIdentity);
   const securityGroup = resolveSecurityGroup(scope, props.infrastructure, serviceIdentity);
 
   for (const rule of props.allowedIngress ?? props.defaultIngressRules) {
     securityGroup.addIngressRule(
-      ec2.Peer.ipv4(rule.cidr),
+      resolveIngressPeer(rule),
       ec2.Port.tcp(rule.port ?? publicPort),
       rule.description,
     );
@@ -101,6 +139,7 @@ export function createEc2DockerHostResources(
         }),
       },
     ],
+    detailedMonitoring: props.operations?.enableDetailedMonitoring,
     instanceType: props.instanceType ?? new ec2.InstanceType('t3.micro'),
     keyPair: props.infrastructure.keyPair,
     machineImage,
@@ -116,9 +155,12 @@ export function createEc2DockerHostResources(
         dockerImage: props.dockerImage,
         nginxMainConfig,
         nginxRoutesConfig,
+        postBootstrapCommands: props.operations?.postBootstrapCommands,
+        preBootstrapCommands: props.operations?.preBootstrapCommands,
         publicPort,
         serviceName: serviceIdentity.resourcePrefix,
         servicePort,
+        skipSystemPackagesUpdate: props.operations?.skipSystemPackagesUpdate,
       }),
     ),
     vpc: props.infrastructure.vpc,
@@ -160,6 +202,7 @@ export function createEc2DockerHostResources(
     serviceOutputs: {
       displayName: serviceIdentity.displayName,
       endpoint: elasticIp?.ref,
+      exposureKind: props.exposureKind,
       hasPublicEndpoint: elasticIp !== undefined,
       listenerPort: publicPort,
       securityGroup,
@@ -167,6 +210,58 @@ export function createEc2DockerHostResources(
       tags: serviceIdentity.tags,
     },
   };
+}
+
+function defaultIngressRulesForExposure(
+  exposureKind: ServiceExposureKind,
+  privateVpcCidr: string,
+  publicPort: number,
+): IngressRule[] {
+  switch (exposureKind) {
+  case 'module-public':
+    return [
+      {
+        cidr: '0.0.0.0/0',
+        description: 'HTTP',
+        port: publicPort,
+      },
+    ];
+  case 'private':
+    return [
+      {
+        cidr: privateVpcCidr,
+        description: 'VPC internal access',
+        port: publicPort,
+      },
+    ];
+  case 'caller-managed':
+    return [];
+  }
+}
+
+function resolveIngressPeer(rule: IngressRule): ec2.IPeer {
+  if (rule.cidr && !rule.sourceSecurityGroup) {
+    return ec2.Peer.ipv4(rule.cidr);
+  }
+
+  if (rule.sourceSecurityGroup && !rule.cidr) {
+    return ec2.Peer.securityGroupId(rule.sourceSecurityGroup.securityGroupId);
+  }
+
+  throw new Error('IngressRule must specify exactly one of cidr or sourceSecurityGroup');
+}
+
+function applyRoleOperationalControls(
+  role: iam.IRole,
+  operations?: Ec2DockerServiceRuntimeProps['operations'],
+): void {
+  for (const policy of operations?.additionalManagedPolicies ?? []) {
+    role.addManagedPolicy(policy);
+  }
+
+  for (const statement of operations?.additionalRolePolicyStatements ?? []) {
+    role.addToPrincipalPolicy(statement);
+  }
 }
 
 function resolveKey(
@@ -234,9 +329,12 @@ interface RenderUserDataInput {
   readonly dockerImage: string;
   readonly nginxMainConfig: string;
   readonly nginxRoutesConfig: string;
+  readonly postBootstrapCommands?: string[];
+  readonly preBootstrapCommands?: string[];
   readonly publicPort: number;
   readonly serviceName: string;
   readonly servicePort: number;
+  readonly skipSystemPackagesUpdate?: boolean;
 }
 
 function renderUserData(props: RenderUserDataInput): string {
@@ -246,7 +344,8 @@ function renderUserData(props: RenderUserDataInput): string {
     'exec > >(tee /var/log/user-data.log) 2>&1',
     '',
     'echo "Starting bootstrap..."',
-    'dnf update -y',
+    ...(props.skipSystemPackagesUpdate ? [] : ['dnf update -y']),
+    ...(props.preBootstrapCommands ?? []),
     'dnf install -y docker nginx curl',
     'systemctl enable docker',
     'systemctl enable nginx',
@@ -315,6 +414,7 @@ function renderUserData(props: RenderUserDataInput): string {
     'nginx -t',
     'systemctl restart nginx',
     `curl -sf http://localhost:${props.publicPort}/health >/dev/null`,
+    ...(props.postBootstrapCommands ?? []),
     'echo "Bootstrap complete"',
   ].join('\n');
 }

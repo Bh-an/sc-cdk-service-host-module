@@ -1,6 +1,8 @@
 import { IConstruct } from 'constructs';
 import { Tags, aws_ec2 as ec2, aws_iam as iam, aws_kms as kms } from 'aws-cdk-lib';
 
+export type ServiceExposureKind = 'module-public' | 'private' | 'caller-managed';
+
 export interface PlatformServiceIdentity {
   readonly displayName?: string;
   readonly namePrefix?: string;
@@ -39,6 +41,7 @@ export interface PlatformServiceOutputs {
 
 export interface NetworkAddressableServiceOutputs extends PlatformServiceOutputs {
   readonly endpoint?: string;
+  readonly exposureKind: ServiceExposureKind;
   readonly hasPublicEndpoint: boolean;
   readonly listenerPort: number;
 }
