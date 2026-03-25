@@ -6,7 +6,7 @@ const jsiiVersion = '~5.9.0';
 const jsiiPacmakVersion = '^1.127.0';
 
 const project = new AwsCdkConstructLibrary({
-  author: 'platform',
+  author: 'Bh-an',
   authorAddress: 'bhan.16070@gmail.com',
   cdkVersion,
   cdkVersionPinning: false,
