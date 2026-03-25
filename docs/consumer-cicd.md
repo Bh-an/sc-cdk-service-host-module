@@ -39,6 +39,13 @@ Recommended pattern:
 - infra stack imports this module
 - workflow deploys the infra stack after image push
 
+For an ALB-backed private service:
+
+- the consumer stack owns the ALB
+- the private EC2 service stays in private subnets
+- the ALB forwards to the host Nginx listener on the instance
+- Nginx continues to proxy to the Dockerized application on the bridge network
+
 ### 3. Deploy the consumer stack
 
 The deploy workflow should run from the app repo, not from this module repo.
@@ -59,6 +66,15 @@ This repo currently supports:
 - CIDR-based ingress rules
 - source-security-group ingress rules
 - normalized service outputs for endpoint and exposure posture
+- consumer proof of both direct public exposure and ALB-backed private exposure
+
+## Reference Example
+
+Use `examples/consumer-proof-stack.ts` for the in-repo consumer proof of:
+
+- one direct public/default service
+- one ALB-backed private service
+- the expected ALB-to-Nginx-to-container flow
 
 ## Reference Workflow
 
