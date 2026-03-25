@@ -21,9 +21,10 @@ test('shared infrastructure example synthesizes two services with one caller-man
   const template = Template.fromStack(stack);
 
   template.resourceCountIs('AWS::EC2::Instance', 2);
-  template.resourceCountIs('AWS::EC2::EIP', 1);
+  template.resourceCountIs('AWS::EC2::EIP', 2);
+  template.resourceCountIs('AWS::EC2::NatGateway', 1);
   template.resourceCountIs('AWS::IAM::Role', 2);
   template.resourceCountIs('AWS::KMS::Key', 2);
-  template.resourceCountIs('AWS::EC2::SecurityGroup', 2);
+  template.resourceCountIs('AWS::EC2::SecurityGroup', 3);
   expect(Object.keys(template.toJSON().Outputs ?? {})).toHaveLength(3);
 });

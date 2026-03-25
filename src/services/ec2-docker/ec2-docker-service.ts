@@ -5,7 +5,10 @@ import {
   PlatformServiceProps,
   ResolvedPlatformServiceIdentity,
 } from '../../contracts/platform-service';
-import { createEc2DockerHostResources } from './ec2-docker-host';
+import {
+  createEc2DockerHostResources,
+  resolveEc2ServiceExposure,
+} from './ec2-docker-host';
 import { Ec2DockerServiceRuntimeProps } from './types';
 
 export type { IngressRule } from './types';
@@ -29,17 +32,25 @@ export class Ec2DockerService extends Construct {
     super(scope, id);
 
     const publicPort = props.publicPort ?? 80;
-    const resources = createEc2DockerHostResources(this, {
-      ...props,
-      associatePublicIpAddress: true,
-      defaultIngressRules: [
+    const exposure = resolveEc2ServiceExposure({
+      defaultExposureKind: 'caller-managed',
+      legacyAssociatePublicIpAddress: true,
+      legacyDefaultIngressRules: [
         {
           cidr: '0.0.0.0/0',
           description: 'HTTP',
           port: publicPort,
         },
       ],
-      enableElasticIp: props.enableElasticIp ?? true,
+      legacyEnableElasticIp: props.enableElasticIp ?? true,
+      privateVpcCidr: props.infrastructure.vpc.vpcCidrBlock,
+      publicPort,
+      requestedExposure: props.exposure,
+    });
+
+    const resources = createEc2DockerHostResources(this, {
+      ...props,
+      ...exposure,
     });
 
     this.dataKey = resources.dataKey;

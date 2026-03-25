@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_kms as kms } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { Ec2DockerService } from '../src';
+import { Ec2DockerService, PrivateEc2DockerService } from '../src';
 
 function createVpc(stack: cdk.Stack, id: string, cidr: string): ec2.Vpc {
   return new ec2.Vpc(stack, id, {
@@ -13,6 +13,26 @@ function createVpc(stack: cdk.Stack, id: string, cidr: string): ec2.Vpc {
         cidrMask: 24,
         name: 'Public',
         subnetType: ec2.SubnetType.PUBLIC,
+      },
+    ],
+  });
+}
+
+function createVpcWithPrivateSubnets(stack: cdk.Stack, id: string, cidr: string): ec2.Vpc {
+  return new ec2.Vpc(stack, id, {
+    ipAddresses: ec2.IpAddresses.cidr(cidr),
+    maxAzs: 1,
+    natGateways: 1,
+    subnetConfiguration: [
+      {
+        cidrMask: 24,
+        name: 'Public',
+        subnetType: ec2.SubnetType.PUBLIC,
+      },
+      {
+        cidrMask: 24,
+        name: 'Private',
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
       },
     ],
   });
@@ -55,6 +75,7 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
     },
   });
   expect(service.serviceOutputs.displayName).toBe('Public API');
+  expect(service.serviceOutputs.exposureKind).toBe('module-public');
   expect(service.serviceOutputs.hasPublicEndpoint).toBe(true);
   expect(service.serviceOutputs.listenerPort).toBe(80);
   expect(service.serviceOutputs.endpoint).toBeDefined();
@@ -151,6 +172,7 @@ test('reuses caller-provided security, role, and kms resources and can disable e
   });
 
   const template = Template.fromStack(stack);
+  expect(service.serviceOutputs.exposureKind).toBe('caller-managed');
   expect(service.serviceOutputs.hasPublicEndpoint).toBe(false);
   expect(service.serviceOutputs.endpoint).toBeUndefined();
   expect(service.serviceOutputs.listenerPort).toBe(8080);
@@ -170,6 +192,74 @@ test('reuses caller-provided security, role, and kms resources and can disable e
       }),
     ]),
   });
+});
+
+test('supports private-subnet caller-managed ingress and operational controls', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'PrivateServiceStack');
+  const vpc = createVpcWithPrivateSubnets(stack, 'ExistingVpc', '10.40.0.0/16');
+  const ingressSecurityGroup = new ec2.SecurityGroup(stack, 'IngressSourceSecurityGroup', {
+    allowAllOutbound: true,
+    vpc,
+  });
+
+  const service = new PrivateEc2DockerService(stack, 'PrivateApp', {
+    allowedIngress: [
+      {
+        description: 'Caller-managed ingress',
+        port: 8080,
+        sourceSecurityGroup: ingressSecurityGroup,
+      },
+    ],
+    dockerImage: 'bhan/ec2-go-service:latest',
+    infrastructure: {
+      subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
+      vpc,
+    },
+    operations: {
+      additionalManagedPolicies: [
+        iam.ManagedPolicy.fromAwsManagedPolicyName('CloudWatchAgentServerPolicy'),
+      ],
+      additionalRolePolicyStatements: [
+        new iam.PolicyStatement({
+          actions: ['ssm:GetParameter'],
+          resources: ['*'],
+        }),
+      ],
+      enableDetailedMonitoring: true,
+      postBootstrapCommands: ['echo post-bootstrap-complete'],
+      preBootstrapCommands: ['echo pre-bootstrap-start'],
+      skipSystemPackagesUpdate: true,
+    },
+    publicPort: 8080,
+    serviceName: 'ec2-private-app',
+  });
+
+  const template = Template.fromStack(stack);
+  expect(service.serviceOutputs.exposureKind).toBe('private');
+  expect(service.serviceOutputs.hasPublicEndpoint).toBe(false);
+  expect(service.serviceOutputs.endpoint).toBeUndefined();
+  template.resourceCountIs('AWS::EC2::EIPAssociation', 0);
+  template.hasResourceProperties('AWS::EC2::SecurityGroup', {
+    SecurityGroupIngress: Match.arrayWith([
+      Match.objectLike({
+        Description: 'Caller-managed ingress',
+        FromPort: 8080,
+        SourceSecurityGroupId: Match.anyValue(),
+        ToPort: 8080,
+      }),
+    ]),
+  });
+  template.hasResourceProperties('AWS::EC2::Instance', {
+    Monitoring: true,
+  });
+
+  const renderedTemplate = JSON.stringify(template.toJSON());
+  expect(renderedTemplate).toContain('CloudWatchAgentServerPolicy');
+  expect(renderedTemplate).toContain('ssm:GetParameter');
+  expect(renderedTemplate).toContain('echo pre-bootstrap-start');
+  expect(renderedTemplate).toContain('echo post-bootstrap-complete');
+  expect(renderedTemplate).not.toContain('dnf update -y');
 });
 
 test('supports multiple services in the same vpc without resource collisions', () => {
@@ -206,6 +296,8 @@ test('supports multiple services in the same vpc without resource collisions', (
   const template = Template.fromStack(stack);
   expect(api.serviceIdentity.resourcePrefix).toBe('dev-ec2-api');
   expect(worker.serviceIdentity.resourcePrefix).toBe('dev-ec2-worker');
+  expect(api.serviceOutputs.exposureKind).toBe('module-public');
+  expect(worker.serviceOutputs.exposureKind).toBe('caller-managed');
   expect(api.serviceOutputs.hasPublicEndpoint).toBe(true);
   expect(worker.serviceOutputs.hasPublicEndpoint).toBe(false);
   template.resourceCountIs('AWS::EC2::Instance', 2);
