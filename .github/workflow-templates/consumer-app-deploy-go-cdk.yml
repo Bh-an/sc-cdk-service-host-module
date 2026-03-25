@@ -1,4 +1,4 @@
-name: Deploy App With cdk-ec2-service-module
+name: Deploy Go App With cdk-ec2-service-module
 
 on:
   workflow_dispatch:
@@ -16,21 +16,23 @@ jobs:
     env:
       AWS_REGION: ap-south-1
       ECR_REPOSITORY: your-app-repository
-      GO_VERSION: '1.24'
+      GO_VERSION: "1.25"
       IMAGE_TAG: ${{ github.sha }}
-      INFRA_DIRECTORY: infra
+      INFRA_DIRECTORY: infra/cdk
 
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
       - uses: actions/setup-go@v5
         with:
           go-version: ${{ env.GO_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install CDK CLI
+        run: npm install -g aws-cdk
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -61,13 +63,12 @@ jobs:
           docker push \
             ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
-      - name: Install infra dependencies
+      - name: Build Go CDK app
         working-directory: ${{ env.INFRA_DIRECTORY }}
-        run: npm ci
+        run: go build .
 
       - name: Deploy consumer stack
         working-directory: ${{ env.INFRA_DIRECTORY }}
-        run: |
-          npx cdk deploy \
-            --require-approval never \
-            -c dockerImage=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        env:
+          DOCKER_IMAGE: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+        run: cdk deploy --require-approval never

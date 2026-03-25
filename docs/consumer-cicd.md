@@ -93,6 +93,9 @@ Use `examples/consumer-proof-stack.ts` for the in-repo consumer proof of:
 - one ALB-backed private service
 - the expected ALB-to-Nginx-to-container flow
 
-## Reference Workflow
+## Reference Workflows
 
-Use `.github/workflow-templates/consumer-app-deploy.yml` in this repo as a reference for the CDK-side consumer workflow shape.
+Use these tracked templates as references:
+
+- `.github/workflow-templates/consumer-app-deploy-go-cdk.yml`
+- `.github/workflow-templates/consumer-app-deploy-terraform.yml`
