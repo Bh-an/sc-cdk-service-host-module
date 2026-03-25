@@ -1,0 +1,87 @@
+{
+  "name": "cdk-ec2-service-module",
+  "version": "0.0.4",
+  "description": "Reusable CDK constructs for provisioning a small EC2-hosted Docker service with Nginx, EBS, KMS, and SSM access.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bh-an/cdk-ec2-service-module.git"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "platform",
+    "email": "bhan.16070@gmail.com"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^20.0.0 || ^22.0.0 || ^24.0.0"
+  },
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "stability": "stable",
+  "scripts": {
+    "build": "npm run compile && npm run test",
+    "compile": "tsc -p tsconfig.dev.json",
+    "docgen": "jsii-docgen --output-file API.md",
+    "package": "jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
+    "package:go": "jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
+    "projen": "projen",
+    "test": "jest --runInBand",
+    "verify": "npm run build && npm run package:go"
+  },
+  "peerDependencies": {
+    "aws-cdk-lib": "^2.207.0",
+    "constructs": "^10.0.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^20.17.24",
+    "@typescript-eslint/eslint-plugin": "^8.28.0",
+    "@typescript-eslint/parser": "^8.28.0",
+    "aws-cdk-lib": "2.207.0",
+    "constructs": "10.0.5",
+    "eslint": "^9.23.0",
+    "eslint-plugin-import": "^2.31.0",
+    "jest": "^29.7.0",
+    "jsii": "~5.9.0",
+    "jsii-docgen": "^10.5.0",
+    "jsii-pacmak": "^1.127.0",
+    "projen": "^0.96.1",
+    "ts-jest": "^29.2.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  },
+  "jest": {
+    "coverageProvider": "v8",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "preset": "ts-jest",
+    "reporters": [
+      "default"
+    ],
+    "testMatch": [
+      "<rootDir>/test/**/*.test.ts"
+    ],
+    "transform": {
+      "^.+\\.[t]sx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "tsconfig.dev.json"
+        }
+      ]
+    }
+  },
+  "jsii": {
+    "outdir": "dist",
+    "targets": {
+      "go": {
+        "moduleName": "github.com/Bh-an/cdk-ec2-service-module-go"
+      }
+    },
+    "tsc": {
+      "outDir": "lib",
+      "rootDir": "src"
+    }
+  }
+}
