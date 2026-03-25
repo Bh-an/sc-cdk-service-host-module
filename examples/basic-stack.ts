@@ -24,7 +24,7 @@ export class BasicAssignmentStack extends cdk.Stack {
       additionalTags: {
         Team: 'platform',
       },
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       infrastructure: {
         sharedTags: {
           Environment: 'dev',
