@@ -1,8 +1,43 @@
 # `cdk-ec2-service-module`
 
-Reusable CDK construct library scaffold for the assignment-aligned EC2 service model.
+Reusable CDK constructs for the assignment-aligned EC2 service model:
 
-This repository is the active evolution path for turning the original assignment infrastructure into a reusable CDK module with jsii-based Go packaging.
+- EC2 host
+- Dockerized Go application
+- host-level Nginx
+- encrypted EBS volumes
+- SSM-first access posture
+
+The module family plugs into caller-owned infrastructure. Consumers provide an existing VPC and subnet selection, and may optionally provide shared security groups, IAM roles, KMS keys, and EC2 key pairs.
+
+## Current Modules
+
+- `Ec2DockerService`
+  - public/default posture
+  - module-managed Elastic IP by default
+- `PrivateEc2DockerService`
+  - private/internal posture
+  - no module-managed public endpoint by default
+
+Both variants share:
+
+- service identity and tag resolution
+- normalized service outputs
+- ingress rules that support CIDRs or source security groups
+- operational controls for IAM policy extension, detailed monitoring, and bootstrap hooks
+
+## Consumer CI/CD
+
+This repo publishes the reusable module. A consumer app repo should own:
+
+- Docker image build and push
+- environment-specific CDK stack code
+- deployment execution
+
+Reference integration material lives in:
+
+- `docs/consumer-cicd.md`
+- `.github/workflow-templates/consumer-app-deploy.yml`
 
 ## Local Verification
 
@@ -16,4 +51,4 @@ npm run verify
 
 ## Status
 
-The construct implementation and examples are added incrementally on top of this scaffold.
+This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the behavioral reference baseline.
