@@ -28,7 +28,7 @@ Both variants share:
 
 ## Deployability Contract
 
-- Service repo is `ec2-go-service` under the Bh-an namespace.
+- Service repo is `sc-ec2-go-service` under the Bh-an namespace.
 - The service repo builds and publishes the Docker image to GHCR:
   - `ghcr.io/bh-an/ec2-go-service:<tag>`
 - CDK is the primary consumer path for deployment.
@@ -76,11 +76,15 @@ npm run verify
 ## Published Paths
 
 - Source (TypeScript): `https://github.com/Bh-an/sc-cdk-ec2-service-module`
-- Go bindings: `github.com/Bh-an/cdk-ec2-service-module-go/cdkec2servicemodule`
+- Go bindings: `github.com/Bh-an/sc-cdk-ec2-service-module-go/cdkec2servicemodule`
 - Service image (owned by service repo): `ghcr.io/bh-an/ec2-go-service:<tag>`
 
 ## Status
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `0.1.1`
+Current release line: `0.1.2`
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for branch usage, Conventional Commit rules, and required verification commands.

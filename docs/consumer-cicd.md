@@ -2,7 +2,7 @@
 
 This module repo is not the application deployment repo.
 
-The service repo is `ec2-go-service` (Bh‑an namespace). It owns:
+The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 
 1. building the application image
 2. publishing the image to GHCR at `ghcr.io/bh-an/ec2-go-service:<tag>`
@@ -41,16 +41,16 @@ From the service repo:
 
 ### 2. Consume the module in the service infra stack
 
-In `ec2-go-service/infra/cdk` (primary):
+In `sc-ec2-go-service/infra/cdk` (primary):
 
 - import this package via the generated Go bindings
 - pass the GHCR image reference into the service construct’s `dockerImage`
 
-In `ec2-go-service/infra/terraform` (secondary):
+In `sc-ec2-go-service/infra/terraform` (secondary):
 
 - consume the aligned Terraform modules from `https://github.com/Bh-an/sc-tf-ec2-service-module`
 - pass the same GHCR image reference to the root/variables as required
-- keep the GHCR package public, or add registry credentials outside the current `v0.1.1` contract before switching to private images
+- keep the GHCR package public, or add registry credentials outside the current `v0.1.2` contract before switching to private images
 
 For an ALB‑backed private service:
 
