@@ -25,8 +25,8 @@ The CDK consumer stack should provide:
 - `subnetSelection`
 - optional shared `securityGroup`, `role`, `kmsKey`, and `keyPair`
 - the appropriate service class:
-  - `Ec2DockerService` for module‑managed public exposure
-  - `PrivateEc2DockerService` for private or caller‑managed ingress posture
+  - `PublicServiceHost` for module-managed public exposure
+  - `PrivateServiceHost` for private or caller-managed ingress posture
 
 ## Typical Deployment Flow
 
@@ -55,7 +55,7 @@ In `sc-ec2-go-service/infra/terraform` (secondary):
 
 - consume the aligned Terraform modules from `git::ssh://git@github.com/Bh-an/sc-tf-service-host-module.git`
 - pass the same GHCR image reference to the root/variables as required
-- keep the GHCR package public, or add registry credentials outside the current `v0.2.0` contract before switching to private images
+- keep the GHCR package public, or add registry credentials outside the current `v0.3.0` contract before switching to private images
 
 For an ALB‑backed private service:
 

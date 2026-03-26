@@ -1,6 +1,6 @@
 {
   "name": "cdk-service-host-module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Reusable CDK constructs for provisioning a small EC2-hosted Docker service with Nginx, EBS, KMS, and SSM access.",
   "repository": {
     "type": "git",
@@ -24,8 +24,8 @@
     "build": "npm run compile && npm run test",
     "compile": "tsc -p tsconfig.dev.json",
     "docgen": "jsii-docgen --output-file API.md",
-    "package": "jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
-    "package:go": "jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
+    "package": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
+    "package:go": "node -e \"require('fs').rmSync('dist', { recursive: true, force: true })\" && jsii && GOCACHE=\"${GOCACHE:-/tmp/go-build-cache}\" GOMODCACHE=\"${GOMODCACHE:-/tmp/go-mod-cache}\" jsii-pacmak -v --target go --pack-command \"$(pwd)/tools/npm-pack.sh\"",
     "projen": "projen",
     "test": "jest --runInBand",
     "verify": "npm run build && npm run package:go"
