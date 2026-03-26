@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_kms as kms } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Ec2DockerService, PrivateEc2DockerService } from '../src';
+import { PrivateServiceHost, PublicServiceHost } from '../src';
 
 export class SharedInfrastructureStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -45,11 +45,11 @@ export class SharedInfrastructureStack extends cdk.Stack {
       enableKeyRotation: true,
     });
 
-    const publicApi = new Ec2DockerService(this, 'PublicApi', {
+    const publicApi = new PublicServiceHost(this, 'PublicApi', {
       additionalTags: {
         Team: 'platform',
       },
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Public API',
         namePrefix: 'dev',
@@ -66,7 +66,7 @@ export class SharedInfrastructureStack extends cdk.Stack {
       serviceName: 'ec2-api',
     });
 
-    const internalTools = new PrivateEc2DockerService(this, 'InternalTools', {
+    const internalTools = new PrivateServiceHost(this, 'InternalTools', {
       allowedIngress: [
         {
           description: 'Caller-managed private ingress',
@@ -74,7 +74,7 @@ export class SharedInfrastructureStack extends cdk.Stack {
           sourceSecurityGroup: ingressSecurityGroup,
         },
       ],
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Internal Tools',
         namePrefix: 'dev',

@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2, aws_iam as iam, aws_kms as kms } from 'aws-cdk-lib';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { Ec2DockerService, PrivateEc2DockerService } from '../src';
+import { PrivateServiceHost, PublicServiceHost } from '../src';
 
 function createVpc(stack: cdk.Stack, id: string, cidr: string): ec2.Vpc {
   return new ec2.Vpc(stack, id, {
@@ -43,11 +43,11 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   const stack = new cdk.Stack(app, 'ServiceStack');
   const vpc = createVpc(stack, 'ExistingVpc', '10.10.0.0/16');
 
-  const service = new Ec2DockerService(stack, 'App', {
+  const service = new PublicServiceHost(stack, 'App', {
     additionalTags: {
       Team: 'platform',
     },
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     identity: {
       displayName: 'Public API',
       namePrefix: 'dev',
@@ -128,7 +128,7 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   expect(renderedTemplate).toContain('"Key":"Environment","Value":"dev"');
   expect(renderedTemplate).toContain('"Key":"ManagedBy","Value":"CDK"');
   expect(renderedTemplate).toContain('"Key":"Team","Value":"platform"');
-  expect(renderedTemplate).toContain('docker pull ec2-go-service:latest');
+  expect(renderedTemplate).toContain('docker pull ghcr.io/bh-an/ec2-go-service:latest');
   expect(renderedTemplate).toContain('docker rm -f dev-ec2-go-service');
   expect(renderedTemplate).toContain('docker network create');
   expect(renderedTemplate).toContain('curl -sf http://localhost:80/health >/dev/null');
@@ -150,7 +150,7 @@ test('reuses caller-provided security, role, and kms resources and can disable e
     enableKeyRotation: true,
   });
 
-  const service = new Ec2DockerService(stack, 'App', {
+  const service = new PublicServiceHost(stack, 'App', {
     allowedIngress: [
       {
         cidr: '10.20.0.0/16',
@@ -158,7 +158,7 @@ test('reuses caller-provided security, role, and kms resources and can disable e
         port: 8080,
       },
     ],
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     enableElasticIp: false,
     infrastructure: {
       kmsKey: sharedKey,
@@ -203,7 +203,7 @@ test('supports private-subnet caller-managed ingress and operational controls', 
     vpc,
   });
 
-  const service = new PrivateEc2DockerService(stack, 'PrivateApp', {
+  const service = new PrivateServiceHost(stack, 'PrivateApp', {
     allowedIngress: [
       {
         description: 'Caller-managed ingress',
@@ -211,7 +211,7 @@ test('supports private-subnet caller-managed ingress and operational controls', 
         sourceSecurityGroup: ingressSecurityGroup,
       },
     ],
-    dockerImage: 'ec2-go-service:latest',
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     infrastructure: {
       subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
       vpc,
@@ -267,8 +267,8 @@ test('supports multiple services in the same vpc without resource collisions', (
   const stack = new cdk.Stack(app, 'MultiServiceStack');
   const vpc = createVpc(stack, 'ExistingVpc', '10.30.0.0/16');
 
-  const api = new Ec2DockerService(stack, 'Api', {
-    dockerImage: 'ec2-go-service:latest',
+  const api = new PublicServiceHost(stack, 'Api', {
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
     identity: {
       namePrefix: 'dev',
     },
@@ -279,7 +279,7 @@ test('supports multiple services in the same vpc without resource collisions', (
     serviceName: 'ec2-api',
   });
 
-  const worker = new Ec2DockerService(stack, 'Worker', {
+  const worker = new PublicServiceHost(stack, 'Worker', {
     dockerImage: 'bhan/ec2-worker:latest',
     enableElasticIp: false,
     identity: {

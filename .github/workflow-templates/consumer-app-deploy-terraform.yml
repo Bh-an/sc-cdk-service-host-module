@@ -1,4 +1,4 @@
-name: Deploy Go App With sc-tf-ec2-service-module
+name: Deploy Go App With sc-tf-service-host-module
 
 on:
   workflow_dispatch:
@@ -15,13 +15,23 @@ jobs:
 
     env:
       AWS_REGION: ap-south-1
-      ECR_REPOSITORY: your-app-repository
       GO_VERSION: "1.24"
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: sha-${{ github.sha }}
+      IMAGE_REPOSITORY: ghcr.io/bh-an/sc-ec2-go-service
       INFRA_DIRECTORY: infra/terraform
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Load SSH key for shared repos
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SHARED_REPOS_SSH_KEY }}
+
+      - name: Trust GitHub SSH host key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - uses: actions/setup-go@v5
         with:
@@ -37,9 +47,12 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           role-to-assume: arn:aws:iam::<account-id>:role/<consumer-deploy-role>
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run Go tests
         working-directory: ./app
@@ -52,13 +65,12 @@ jobs:
       - name: Build Go application image
         run: |
           docker build \
-            -t ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }} \
+            -t ${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }} \
             ./app
 
       - name: Push application image
         run: |
-          docker push \
-            ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
       - name: Terraform init
         working-directory: ${{ env.INFRA_DIRECTORY }}
@@ -68,4 +80,4 @@ jobs:
         working-directory: ${{ env.INFRA_DIRECTORY }}
         run: |
           terraform apply -auto-approve \
-            -var="docker_image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}"
+            -var="docker_image=${{ env.IMAGE_REPOSITORY }}:${{ env.IMAGE_TAG }}"

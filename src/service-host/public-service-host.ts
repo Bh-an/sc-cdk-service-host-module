@@ -4,20 +4,20 @@ import {
   NetworkAddressableServiceOutputs,
   PlatformServiceProps,
   ResolvedPlatformServiceIdentity,
-} from '../../contracts/platform-service';
+} from '../contracts/platform-service';
 import {
-  createEc2DockerHostResources,
-  resolveEc2ServiceExposure,
-} from './ec2-docker-host';
-import { Ec2DockerServiceRuntimeProps } from './types';
+  createServiceHostResources,
+  resolveServiceHostExposure,
+} from './service-host-core';
+import { ServiceHostRuntimeProps } from './types';
 
 export type { IngressRule } from './types';
 
-export interface Ec2DockerServiceProps extends PlatformServiceProps, Ec2DockerServiceRuntimeProps {
+export interface PublicServiceHostProps extends PlatformServiceProps, ServiceHostRuntimeProps {
   readonly enableElasticIp?: boolean;
 }
 
-export class Ec2DockerService extends Construct {
+export class PublicServiceHost extends Construct {
   public readonly dataKey: kms.IKey;
   public readonly dataMountPath: string;
   public readonly dataVolumeDeviceName: string;
@@ -28,11 +28,11 @@ export class Ec2DockerService extends Construct {
   public readonly serviceIdentity: ResolvedPlatformServiceIdentity;
   public readonly serviceOutputs: NetworkAddressableServiceOutputs;
 
-  public constructor(scope: Construct, id: string, props: Ec2DockerServiceProps) {
+  public constructor(scope: Construct, id: string, props: PublicServiceHostProps) {
     super(scope, id);
 
     const publicPort = props.publicPort ?? 80;
-    const exposure = resolveEc2ServiceExposure({
+    const exposure = resolveServiceHostExposure({
       defaultExposureKind: 'caller-managed',
       legacyAssociatePublicIpAddress: true,
       legacyDefaultIngressRules: [
@@ -48,7 +48,7 @@ export class Ec2DockerService extends Construct {
       requestedExposure: props.exposure,
     });
 
-    const resources = createEc2DockerHostResources(this, {
+    const resources = createServiceHostResources(this, {
       ...props,
       ...exposure,
     });
