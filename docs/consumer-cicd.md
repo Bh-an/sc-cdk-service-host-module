@@ -38,6 +38,7 @@ From `sc-ec2-go-service`:
 - export `GITHUB_TOKEN` with read access to the private shared repos
 - run `make bootstrap`
 - use the service repo scripts for validation and deploy
+- use `TESTING.md` as the real-account checklist
 
 The supported private-repo path is token-based HTTPS only. The service repo scripts inject temporary GitHub access per command so operators do not have to persist tokens in global git config.
 
