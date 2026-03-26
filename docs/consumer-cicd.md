@@ -9,6 +9,7 @@ The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 3. choosing a consumer infra path (CDK primary, Terraform secondary)
 4. passing the image reference into that deploy path
 5. executing the deploy from the service repo
+6. bootstrapping fresh local machines for private shared-module access
 
 For this module family, treat the service as a Go application by default:
 
@@ -30,7 +31,17 @@ The CDK consumer stack should provide:
 
 ## Typical Deployment Flow
 
-### 1. Build and publish the image (in sc-ec2-go-service)
+### 1. Bootstrap the service repo on a fresh machine
+
+From `sc-ec2-go-service`:
+
+- export `GITHUB_TOKEN` with read access to the private shared repos
+- run `make bootstrap`
+- use the service repo scripts for validation and deploy
+
+The supported private-repo path is token-based HTTPS only. The service repo scripts inject temporary GitHub access per command so operators do not have to persist tokens in global git config.
+
+### 2. Build and publish the image (in sc-ec2-go-service)
 
 From the service repo:
 
@@ -39,7 +50,7 @@ From the service repo:
 - build the Docker image
 - push to GHCR: `ghcr.io/bh-an/ec2-go-service:${GIT_SHA}` (or your chosen tag)
 
-### 2. Consume the module in the service infra stack
+### 3. Consume the module in the service infra stack
 
 In `sc-ec2-go-service/infra/cdk` (primary):
 
@@ -64,7 +75,7 @@ For an ALB‑backed private service:
 - the ALB forwards to the host Nginx listener on the instance
 - Nginx proxies to the Dockerized application on the bridge network
 
-### 3. Deploy the service stack
+### 4. Deploy the service stack
 
 Run the deploy workflow from the service repo, not from this module repo.
 
