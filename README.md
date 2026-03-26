@@ -71,6 +71,7 @@ For real service bring-up, start in `sc-ec2-go-service` and use its operator sur
 - `make publish-image`
 - `make deploy-cdk`
 - `make deploy-terraform`
+- `TESTING.md` for the real AWS-account checklist
 
 ## Local Verification
 
