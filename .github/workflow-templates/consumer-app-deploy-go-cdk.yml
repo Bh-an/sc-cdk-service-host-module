@@ -22,17 +22,9 @@ jobs:
       IMAGE_TAG: sha-${{ github.sha }}
       IMAGE_REPOSITORY: ghcr.io/bh-an/sc-ec2-go-service
       INFRA_DIRECTORY: infra/cdk
-      GOPRIVATE: github.com/Bh-an/*
-      GONOSUMDB: github.com/Bh-an/*
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Ensure shared repos token is configured
-        run: test -n "${{ secrets.SHARED_REPOS_TOKEN }}"
-
-      - name: Configure token-based access for shared repos
-        run: git config --global url."https://x-access-token:${{ secrets.SHARED_REPOS_TOKEN }}@github.com/".insteadOf https://github.com/
 
       - uses: actions/setup-go@v6
         with:
