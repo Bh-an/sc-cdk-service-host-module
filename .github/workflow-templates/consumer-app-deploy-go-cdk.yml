@@ -6,6 +6,9 @@ on:
     branches:
       - main
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -23,7 +26,7 @@ jobs:
       GONOSUMDB: github.com/Bh-an/*
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Ensure shared repos token is configured
         run: test -n "${{ secrets.SHARED_REPOS_TOKEN }}"
@@ -31,11 +34,11 @@ jobs:
       - name: Configure token-based access for shared repos
         run: git config --global url."https://x-access-token:${{ secrets.SHARED_REPOS_TOKEN }}@github.com/".insteadOf https://github.com/
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v6
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
 
