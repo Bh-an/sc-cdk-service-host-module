@@ -68,8 +68,9 @@ For real service bring-up, start in `sc-ec2-go-service` and use its operator sur
 
 - `make bootstrap`
 - `make validate`
-- `make publish-image`
+- `make resolve-image`
 - `make deploy-cdk`
+- `make build-ami`
 - `make deploy-terraform`
 - `make cleanup-cdk`
 - `make cleanup-terraform`
@@ -95,7 +96,7 @@ npm run verify
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `v0.3.0`
+Current release line: `v0.3.1`
 
 ## Contributing
 

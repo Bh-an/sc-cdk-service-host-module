@@ -5,7 +5,7 @@ This module repo is not the application deployment repo.
 The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 
 1. building the application image
-2. publishing the image to GHCR at `ghcr.io/bh-an/ec2-go-service:<tag>`
+2. resolving or publishing the image to GHCR at `ghcr.io/bh-an/ec2-go-service:<tag>`
 3. choosing a consumer infra path (CDK primary, Terraform secondary)
 4. passing the image reference into that deploy path
 5. executing the deploy from the service repo
@@ -40,14 +40,12 @@ From `sc-ec2-go-service`:
 - use the service repo scripts for validation and deploy
 - use `TESTING.md` as the real-account checklist
 
-### 2. Build and publish the image (in sc-ec2-go-service)
+### 2. Resolve or publish the image (in sc-ec2-go-service)
 
 From the service repo:
 
-- run Go tests
-- optionally build the Go binary as a validation step
-- build the Docker image
-- push to GHCR: `ghcr.io/bh-an/ec2-go-service:${GIT_SHA}` (or your chosen tag)
+- use `make resolve-image` to consume the latest published public digest by default
+- or run `make publish-image` if you need a fresh image
 
 ### 3. Consume the module in the service infra stack
 
