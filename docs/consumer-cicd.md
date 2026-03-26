@@ -45,10 +45,15 @@ In `sc-ec2-go-service/infra/cdk` (primary):
 
 - import this package via the generated Go bindings
 - pass the GHCR image reference into the service construct’s `dockerImage`
+- configure private shared-repo access with:
+  - `GOPRIVATE=github.com/Bh-an/*`
+  - `GONOSUMDB=github.com/Bh-an/*`
+  - git rewrite from `https://github.com/` to `ssh://git@github.com/`
+  - an SSH key with read access to the shared repos
 
 In `sc-ec2-go-service/infra/terraform` (secondary):
 
-- consume the aligned Terraform modules from `https://github.com/Bh-an/sc-tf-service-host-module`
+- consume the aligned Terraform modules from `git::ssh://git@github.com/Bh-an/sc-tf-service-host-module.git`
 - pass the same GHCR image reference to the root/variables as required
 - keep the GHCR package public, or add registry credentials outside the current `v0.2.0` contract before switching to private images
 
@@ -94,3 +99,9 @@ Use these tracked templates as references:
 
 - `.github/workflow-templates/consumer-app-deploy-go-cdk.yml`
 - `.github/workflow-templates/consumer-app-deploy-terraform.yml`
+
+For private shared repos, consumer CI should provide:
+
+- `secrets.SHARED_REPOS_SSH_KEY`
+- GitHub SSH host trust setup
+- Go private-module environment variables for the CDK path
