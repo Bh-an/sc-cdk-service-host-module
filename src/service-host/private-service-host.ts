@@ -4,16 +4,16 @@ import {
   NetworkAddressableServiceOutputs,
   PlatformServiceProps,
   ResolvedPlatformServiceIdentity,
-} from '../../contracts/platform-service';
+} from '../contracts/platform-service';
 import {
-  createEc2DockerHostResources,
-  resolveEc2ServiceExposure,
-} from './ec2-docker-host';
-import { Ec2DockerServiceRuntimeProps } from './types';
+  createServiceHostResources,
+  resolveServiceHostExposure,
+} from './service-host-core';
+import { ServiceHostRuntimeProps } from './types';
 
-export interface PrivateEc2DockerServiceProps extends PlatformServiceProps, Ec2DockerServiceRuntimeProps {}
+export interface PrivateServiceHostProps extends PlatformServiceProps, ServiceHostRuntimeProps {}
 
-export class PrivateEc2DockerService extends Construct {
+export class PrivateServiceHost extends Construct {
   public readonly dataKey: kms.IKey;
   public readonly dataMountPath: string;
   public readonly dataVolumeDeviceName: string;
@@ -24,11 +24,11 @@ export class PrivateEc2DockerService extends Construct {
   public readonly serviceIdentity: ResolvedPlatformServiceIdentity;
   public readonly serviceOutputs: NetworkAddressableServiceOutputs;
 
-  public constructor(scope: Construct, id: string, props: PrivateEc2DockerServiceProps) {
+  public constructor(scope: Construct, id: string, props: PrivateServiceHostProps) {
     super(scope, id);
 
     const publicPort = props.publicPort ?? 80;
-    const exposure = resolveEc2ServiceExposure({
+    const exposure = resolveServiceHostExposure({
       defaultExposureKind: 'private',
       legacyAssociatePublicIpAddress: false,
       legacyDefaultIngressRules: [
@@ -44,7 +44,7 @@ export class PrivateEc2DockerService extends Construct {
       requestedExposure: props.exposure,
     });
 
-    const resources = createEc2DockerHostResources(this, {
+    const resources = createServiceHostResources(this, {
       ...props,
       ...exposure,
     });

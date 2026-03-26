@@ -19,6 +19,13 @@ type(scope): short description
 - `dev` is the shared integration and release-prep branch
 - short-lived work should branch from `dev` when active work is already in progress
 
+## Releases
+
+- shared releases are cut from `main`
+- push a semver tag like `v0.3.0` on a commit already reachable from `main`
+- `.github/workflows/release.yml` publishes the source repo release and triggers the wrapper repo release
+- required secret for cross-repo orchestration: `RELEASE_REPO_TOKEN`
+
 ## Before You Commit
 
 Run:

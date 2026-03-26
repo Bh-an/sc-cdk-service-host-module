@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { aws_ec2 as ec2 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { Ec2DockerService } from '../src';
+import { PublicServiceHost } from '../src';
 
 export class BasicAssignmentStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,7 +20,7 @@ export class BasicAssignmentStack extends cdk.Stack {
       ],
     });
 
-    new Ec2DockerService(this, 'PublicApi', {
+    new PublicServiceHost(this, 'PublicApi', {
       additionalTags: {
         Team: 'platform',
       },

@@ -12,10 +12,10 @@ The module family plugs into caller-owned infrastructure. Consumers provide an e
 
 ## Current Modules
 
-- `Ec2DockerService`
+- `PublicServiceHost`
   - public/default posture
   - module-managed Elastic IP by default
-- `PrivateEc2DockerService`
+- `PrivateServiceHost`
   - private/internal posture
   - no module-managed public endpoint by default
 
@@ -83,7 +83,7 @@ npm run verify
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `0.2.0-dev`
+Current release line: `0.3.0-dev`
 
 ## Contributing
 
