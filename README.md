@@ -65,10 +65,10 @@ In the current split, the service repo can carry both consumer approaches side b
 
 ## Local Verification
 
-Use Node 20 for the supported local path.
+Use Node 22 for the preferred local path. The supported runtime range remains Node 20, 22, and 24.
 
 ```bash
-nvm use 20
+nvm use 22
 npm ci
 npm run verify
 ```
@@ -83,7 +83,7 @@ npm run verify
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `0.3.0-dev`
+Current release line: `v0.3.0`
 
 ## Contributing
 
