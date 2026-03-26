@@ -5,14 +5,20 @@ on:
     tags:
       - 'v*'
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 permissions:
   contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: release-${{ github.ref_name }}
+      cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -21,9 +27,9 @@ jobs:
           git fetch origin main --depth=1
           git branch -r --contains "$GITHUB_SHA" | grep -q "origin/main"
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - run: npm ci
@@ -43,10 +49,16 @@ jobs:
             dist/js/*.tgz
             dist/go/cdkservicehostmodule/jsii/*.tgz
 
+      - name: Ensure wrapper release token is configured
+        env:
+          GH_TOKEN: ${{ secrets.RELEASE_REPO_TOKEN }}
+        run: test -n "$GH_TOKEN"
+
       - name: Trigger wrapper release
         env:
           GH_TOKEN: ${{ secrets.RELEASE_REPO_TOKEN }}
         run: |
+          gh auth status
           gh workflow run release.yml \
             --repo Bh-an/sc-cdk-service-host-module-go \
             -f version="${GITHUB_REF_NAME#v}" \

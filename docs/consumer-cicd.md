@@ -9,6 +9,8 @@ The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 3. choosing a consumer infra path (CDK primary, Terraform secondary)
 4. passing the image reference into that deploy path
 5. executing the deploy from the service repo
+6. bootstrapping fresh local machines for private shared-module access
+7. executing environment cleanup from the service repo
 
 For this module family, treat the service as a Go application by default:
 
@@ -30,7 +32,18 @@ The CDK consumer stack should provide:
 
 ## Typical Deployment Flow
 
-### 1. Build and publish the image (in sc-ec2-go-service)
+### 1. Bootstrap the service repo on a fresh machine
+
+From `sc-ec2-go-service`:
+
+- export `GITHUB_TOKEN` with read access to the private shared repos
+- run `make bootstrap`
+- use the service repo scripts for validation and deploy
+- use `TESTING.md` as the real-account checklist
+
+The supported private-repo path is token-based HTTPS only. The service repo scripts inject temporary GitHub access per command so operators do not have to persist tokens in global git config.
+
+### 2. Build and publish the image (in sc-ec2-go-service)
 
 From the service repo:
 
@@ -39,21 +52,21 @@ From the service repo:
 - build the Docker image
 - push to GHCR: `ghcr.io/bh-an/ec2-go-service:${GIT_SHA}` (or your chosen tag)
 
-### 2. Consume the module in the service infra stack
+### 3. Consume the module in the service infra stack
 
 In `sc-ec2-go-service/infra/cdk` (primary):
 
 - import this package via the generated Go bindings
 - pass the GHCR image reference into the service construct’s `dockerImage`
-- configure private shared-repo access with:
+- configure private shared-repo access in CI with:
   - `GOPRIVATE=github.com/Bh-an/*`
   - `GONOSUMDB=github.com/Bh-an/*`
-  - git rewrite from `https://github.com/` to `ssh://git@github.com/`
-  - an SSH key with read access to the shared repos
+  - git rewrite from `https://github.com/` to `https://x-access-token:<token>@github.com/`
+  - a GitHub Actions secret named `SHARED_REPOS_TOKEN`
 
 In `sc-ec2-go-service/infra/terraform` (secondary):
 
-- consume the aligned Terraform modules from `git::ssh://git@github.com/Bh-an/sc-tf-service-host-module.git`
+- consume the aligned Terraform modules from `git::https://github.com/Bh-an/sc-tf-service-host-module.git`
 - pass the same GHCR image reference to the root/variables as required
 - keep the GHCR package public, or add registry credentials outside the current `v0.3.0` contract before switching to private images
 
@@ -64,7 +77,7 @@ For an ALB‑backed private service:
 - the ALB forwards to the host Nginx listener on the instance
 - Nginx proxies to the Dockerized application on the bridge network
 
-### 3. Deploy the service stack
+### 4. Deploy the service stack
 
 Run the deploy workflow from the service repo, not from this module repo.
 
@@ -102,6 +115,5 @@ Use these tracked templates as references:
 
 For private shared repos, consumer CI should provide:
 
-- `secrets.SHARED_REPOS_SSH_KEY`
-- GitHub SSH host trust setup
+- `secrets.SHARED_REPOS_TOKEN`
 - Go private-module environment variables for the CDK path

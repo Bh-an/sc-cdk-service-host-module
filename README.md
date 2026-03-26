@@ -43,6 +43,7 @@ This repo publishes the reusable module. The service repo `https://github.com/Bh
 - Docker image build and GHCR publishing
 - environment-specific consumer infra code
 - deployment execution
+- fresh-machine bootstrap for operators
 
 Reference integration material in this repo:
 
@@ -63,12 +64,23 @@ In the current split, the service repo can carry both consumer approaches side b
 - `infra/cdk/` for the Go CDK path that consumes this package (primary)
 - `infra/terraform/` for the Terraform-module path (aligned secondary)
 
+For real service bring-up, start in `sc-ec2-go-service` and use its operator surface:
+
+- `make bootstrap`
+- `make validate`
+- `make publish-image`
+- `make deploy-cdk`
+- `make deploy-terraform`
+- `make cleanup-cdk`
+- `make cleanup-terraform`
+- `TESTING.md` for the real AWS-account checklist
+
 ## Local Verification
 
-Use Node 20 for the supported local path.
+Use Node 22 for the preferred local path. The supported runtime range remains Node 20, 22, and 24.
 
 ```bash
-nvm use 20
+nvm use 22
 npm ci
 npm run verify
 ```
@@ -83,7 +95,7 @@ npm run verify
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `0.3.0-dev`
+Current release line: `v0.3.0`
 
 ## Contributing
 
