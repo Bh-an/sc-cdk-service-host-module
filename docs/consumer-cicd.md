@@ -9,7 +9,7 @@ The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 3. choosing a consumer infra path (CDK primary, Terraform secondary)
 4. passing the image reference into that deploy path
 5. executing the deploy from the service repo
-6. bootstrapping fresh local machines for private shared-module access
+6. bootstrapping fresh local machines
 7. executing environment cleanup from the service repo
 
 For this module family, treat the service as a Go application by default:
@@ -36,12 +36,9 @@ The CDK consumer stack should provide:
 
 From `sc-ec2-go-service`:
 
-- export `GITHUB_TOKEN` with read access to the private shared repos
 - run `make bootstrap`
 - use the service repo scripts for validation and deploy
 - use `TESTING.md` as the real-account checklist
-
-The supported private-repo path is token-based HTTPS only. The service repo scripts inject temporary GitHub access per command so operators do not have to persist tokens in global git config.
 
 ### 2. Build and publish the image (in sc-ec2-go-service)
 
@@ -58,11 +55,6 @@ In `sc-ec2-go-service/infra/cdk` (primary):
 
 - import this package via the generated Go bindings
 - pass the GHCR image reference into the service construct’s `dockerImage`
-- configure private shared-repo access in CI with:
-  - `GOPRIVATE=github.com/Bh-an/*`
-  - `GONOSUMDB=github.com/Bh-an/*`
-  - git rewrite from `https://github.com/` to `https://x-access-token:<token>@github.com/`
-  - a GitHub Actions secret named `SHARED_REPOS_TOKEN`
 
 In `sc-ec2-go-service/infra/terraform` (secondary):
 
@@ -113,7 +105,4 @@ Use these tracked templates as references:
 - `.github/workflow-templates/consumer-app-deploy-go-cdk.yml`
 - `.github/workflow-templates/consumer-app-deploy-terraform.yml`
 
-For private shared repos, consumer CI should provide:
-
-- `secrets.SHARED_REPOS_TOKEN`
-- Go private-module environment variables for the CDK path
+Shared module consumption no longer requires private-repo bootstrap or CI token wiring.
