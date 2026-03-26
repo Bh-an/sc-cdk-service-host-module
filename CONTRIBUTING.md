@@ -17,7 +17,7 @@ type(scope): short description
 
 - `main` is the stable branch
 - `dev` is the shared integration and release-prep branch
-- `ci/cd` is reserved for workflow, release, and automation-only changes
+- `ci-cd` is reserved for workflow, release, and automation-only changes
 - short-lived work should branch from `dev` unless the change is CI/CD-only
 
 ## Releases
