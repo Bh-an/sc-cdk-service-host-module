@@ -30,7 +30,7 @@ The CDK consumer stack should provide:
 
 ## Typical Deployment Flow
 
-### 1. Build and publish the image (in ec2-go-service)
+### 1. Build and publish the image (in sc-ec2-go-service)
 
 From the service repo:
 
@@ -48,9 +48,9 @@ In `sc-ec2-go-service/infra/cdk` (primary):
 
 In `sc-ec2-go-service/infra/terraform` (secondary):
 
-- consume the aligned Terraform modules from `https://github.com/Bh-an/sc-tf-ec2-service-module`
+- consume the aligned Terraform modules from `https://github.com/Bh-an/sc-tf-service-host-module`
 - pass the same GHCR image reference to the root/variables as required
-- keep the GHCR package public, or add registry credentials outside the current `v0.1.2` contract before switching to private images
+- keep the GHCR package public, or add registry credentials outside the current `v0.2.0` contract before switching to private images
 
 For an ALB‑backed private service:
 

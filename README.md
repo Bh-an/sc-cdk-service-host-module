@@ -1,4 +1,4 @@
-# cdk-ec2-service-module
+# cdk-service-host-module
 
 Reusable CDK constructs for the assignment-aligned EC2 service model:
 
@@ -75,15 +75,15 @@ npm run verify
 
 ## Published Paths
 
-- Source (TypeScript): `https://github.com/Bh-an/sc-cdk-ec2-service-module`
-- Go bindings: `github.com/Bh-an/sc-cdk-ec2-service-module-go/cdkec2servicemodule`
+- Source (TypeScript): `https://github.com/Bh-an/sc-cdk-service-host-module`
+- Go bindings: `github.com/Bh-an/sc-cdk-service-host-module-go/cdkservicehostmodule`
 - Service image (owned by service repo): `ghcr.io/bh-an/ec2-go-service:<tag>`
 
 ## Status
 
 This repo is the active infra/devops evolution path for the original assignment service. The original Terraform/Packer implementation lives separately as the aligned Terraform repo.
 
-Current release line: `0.1.2`
+Current release line: `0.2.0-dev`
 
 ## Contributing
 
