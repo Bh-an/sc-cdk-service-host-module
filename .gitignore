@@ -5,5 +5,7 @@ lib
 cdk.out
 .jsii
 *.tgz
+__pycache__/
+*.pyc
 .DS_Store
 yarn-error.log

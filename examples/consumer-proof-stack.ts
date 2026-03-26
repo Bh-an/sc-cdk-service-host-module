@@ -6,8 +6,8 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import {
-  Ec2DockerService,
-  PrivateEc2DockerService,
+  PrivateServiceHost,
+  PublicServiceHost,
 } from '../src';
 
 export class ConsumerProofStack extends cdk.Stack {
@@ -32,11 +32,11 @@ export class ConsumerProofStack extends cdk.Stack {
       ],
     });
 
-    const publicApi = new Ec2DockerService(this, 'PublicApi', {
+    const publicApi = new PublicServiceHost(this, 'PublicApi', {
       additionalTags: {
         Consumer: 'proof',
       },
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Public API',
         namePrefix: 'proof',
@@ -64,7 +64,7 @@ export class ConsumerProofStack extends cdk.Stack {
       'Public HTTP access',
     );
 
-    const privateApi = new PrivateEc2DockerService(this, 'PrivateApi', {
+    const privateApi = new PrivateServiceHost(this, 'PrivateApi', {
       allowedIngress: [
         {
           description: 'ALB to private Nginx',
@@ -72,7 +72,7 @@ export class ConsumerProofStack extends cdk.Stack {
           sourceSecurityGroup: albSecurityGroup,
         },
       ],
-      dockerImage: 'ec2-go-service:latest',
+      dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Private API',
         namePrefix: 'proof',

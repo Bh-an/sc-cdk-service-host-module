@@ -14,26 +14,26 @@ import {
   applyTags,
   buildResourceName,
   resolveServiceIdentity,
-} from '../../contracts/platform-service';
+} from '../contracts/platform-service';
 import {
   DEFAULT_NGINX_CONF,
   buildDefaultAppRoutesConfig,
 } from './default-nginx-config';
-import { Ec2DockerServiceRuntimeProps, IngressRule } from './types';
+import { IngressRule, ServiceHostRuntimeProps } from './types';
 
-interface Ec2DockerHostDefaults {
+interface ServiceHostDefaults {
   readonly associatePublicIpAddress: boolean;
   readonly defaultIngressRules: IngressRule[];
   readonly exposureKind: ServiceExposureKind;
   readonly enableElasticIp: boolean;
 }
 
-export interface Ec2DockerHostProps extends
+export interface ServiceHostProps extends
   PlatformServiceProps,
-  Ec2DockerServiceRuntimeProps,
-  Ec2DockerHostDefaults {}
+  ServiceHostRuntimeProps,
+  ServiceHostDefaults {}
 
-export interface Ec2DockerHostResources {
+export interface ServiceHostResources {
   readonly dataKey: kms.IKey;
   readonly dataMountPath: string;
   readonly dataVolumeDeviceName: string;
@@ -45,19 +45,19 @@ export interface Ec2DockerHostResources {
   readonly serviceOutputs: NetworkAddressableServiceOutputs;
 }
 
-export interface ResolveEc2ServiceExposureOptions {
+export interface ResolveServiceHostExposureOptions {
   readonly defaultExposureKind: ServiceExposureKind;
   readonly legacyAssociatePublicIpAddress: boolean;
   readonly legacyDefaultIngressRules: IngressRule[];
   readonly legacyEnableElasticIp: boolean;
   readonly privateVpcCidr: string;
   readonly publicPort: number;
-  readonly requestedExposure?: Ec2DockerServiceRuntimeProps['exposure'];
+  readonly requestedExposure?: ServiceHostRuntimeProps['exposure'];
 }
 
-export function resolveEc2ServiceExposure(
-  options: ResolveEc2ServiceExposureOptions,
-): Ec2DockerHostDefaults {
+export function resolveServiceHostExposure(
+  options: ResolveServiceHostExposureOptions,
+): ServiceHostDefaults {
   if (!options.requestedExposure) {
     return {
       associatePublicIpAddress: options.legacyAssociatePublicIpAddress,
@@ -80,10 +80,10 @@ export function resolveEc2ServiceExposure(
   };
 }
 
-export function createEc2DockerHostResources(
+export function createServiceHostResources(
   scope: Construct,
-  props: Ec2DockerHostProps,
-): Ec2DockerHostResources {
+  props: ServiceHostProps,
+): ServiceHostResources {
   const servicePort = props.servicePort ?? 8081;
   const publicPort = props.publicPort ?? 80;
   const bridgeNetworkName = props.bridgeNetworkName ?? 'ec2-net';
@@ -253,7 +253,7 @@ function resolveIngressPeer(rule: IngressRule): ec2.IPeer {
 
 function applyRoleOperationalControls(
   role: iam.IRole,
-  operations?: Ec2DockerServiceRuntimeProps['operations'],
+  operations?: ServiceHostRuntimeProps['operations'],
 ): void {
   for (const policy of operations?.additionalManagedPolicies ?? []) {
     role.addManagedPolicy(policy);
