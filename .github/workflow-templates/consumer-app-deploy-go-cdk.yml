@@ -44,10 +44,10 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install CDK CLI
-        run: npm install -g aws-cdk
+        run: npm install -g aws-cdk@2
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
