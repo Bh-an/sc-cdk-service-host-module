@@ -10,6 +10,7 @@ The service repo is `sc-ec2-go-service` (Bh‑an namespace). It owns:
 4. passing the image reference into that deploy path
 5. executing the deploy from the service repo
 6. bootstrapping fresh local machines for private shared-module access
+7. executing environment cleanup from the service repo
 
 For this module family, treat the service as a Go application by default:
 
