@@ -43,6 +43,7 @@ This repo publishes the reusable module. The service repo `https://github.com/Bh
 - Docker image build and GHCR publishing
 - environment-specific consumer infra code
 - deployment execution
+- fresh-machine bootstrap for operators
 
 Reference integration material in this repo:
 
@@ -62,6 +63,14 @@ In the current split, the service repo can carry both consumer approaches side b
 
 - `infra/cdk/` for the Go CDK path that consumes this package (primary)
 - `infra/terraform/` for the Terraform-module path (aligned secondary)
+
+For real service bring-up, start in `sc-ec2-go-service` and use its operator surface:
+
+- `make bootstrap`
+- `make validate`
+- `make publish-image`
+- `make deploy-cdk`
+- `make deploy-terraform`
 
 ## Local Verification
 
