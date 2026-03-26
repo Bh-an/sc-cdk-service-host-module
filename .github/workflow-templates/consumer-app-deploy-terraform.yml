@@ -23,15 +23,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Load SSH key for shared repos
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SHARED_REPOS_SSH_KEY }}
+      - name: Ensure shared repos token is configured
+        run: test -n "${{ secrets.SHARED_REPOS_TOKEN }}"
 
-      - name: Trust GitHub SSH host key
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan github.com >> ~/.ssh/known_hosts
+      - name: Configure token-based access for shared repos
+        run: git config --global url."https://x-access-token:${{ secrets.SHARED_REPOS_TOKEN }}@github.com/".insteadOf https://github.com/
 
       - uses: actions/setup-go@v5
         with:
