@@ -25,6 +25,17 @@ type(scope): short description
 
 Feature work branches from `dev` unless CI-only.
 
+## Pending Branch Protection Plan
+
+This is the intended GitHub policy, but it is not enforced yet:
+
+- `main` should require pull requests
+- direct pushes to `main` should be blocked
+- required checks should pass before merge
+- `dev` should at least block force-push and deletion
+
+Until GitHub protection is enabled, contributors should treat PR-based merges into `main` as mandatory.
+
 ## Before You Commit
 
 ```bash
