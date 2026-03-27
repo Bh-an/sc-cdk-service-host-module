@@ -38,7 +38,7 @@ From `sc-ec2-go-service`:
 
 - run `make bootstrap`
 - use the service repo scripts for validation and deploy
-- use `TESTING.md` as the real-account checklist
+- use the root `README.md` as the real-account checklist
 
 ### 2. Resolve or publish the image (in sc-ec2-go-service)
 

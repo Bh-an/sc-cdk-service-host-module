@@ -33,7 +33,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Updated consumer guidance for public repo consumption model
 
 ### Changed
-- Operator docs now route AWS testing to the service repo's `TESTING.md` runbook
+- Operator docs now route AWS testing to the service repo's root `README.md`
 
 ## [0.3.0] - 2026-03-15
 

@@ -43,6 +43,15 @@ It does not own:
 
 Those live in the related repos linked above.
 
+## Capabilities
+
+- `PublicServiceHost` for the assignment-default public EC2 path with a module-managed EIP
+- `PrivateServiceHost` for a private EC2 host with VPC-only ingress
+- Nginx route generation for `/health`, `/api/v1`, `/version`, `/_nginx/health`, and default `404`
+- encrypted root and data EBS volumes with a module-generated or caller-provided KMS key
+- SSM-managed host access and Docker-based app bootstrap
+- consumer proof example that validates public and private postures together, with the private host behind an ALB
+
 ## Constructs
 
 ```mermaid
@@ -153,7 +162,7 @@ src/
 `v0.3.4`
 
 > [!NOTE]
-> This release line is locally validated and ready for the next fresh-clone public AWS rerun from the service repo.
+> The published `v0.3.4` release line is live-verified through the service repo's fresh-clone public CDK path. Current `main` also includes the private-example launch-template fix that was live-verified in the shared proof stack rerun on `2026-03-27`.
 
 ## Contributing
 
