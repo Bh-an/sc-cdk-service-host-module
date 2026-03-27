@@ -50,7 +50,7 @@ Those live in the related repos linked above.
 - Nginx route generation for `/health`, `/api/v1`, `/version`, `/_nginx/health`, and default `404`
 - encrypted root and data EBS volumes with a module-generated or caller-provided KMS key
 - SSM-managed host access and Docker-based app bootstrap
-- consumer proof example that validates public and private postures together, with the private host behind an ALB
+- consumer proof example that validates public and private postures together, with the private host behind a caller-managed load balancer (ALB)
 
 ## Constructs
 
@@ -136,7 +136,7 @@ Reference material for consumers:
 
 The consumer proof stack demonstrates:
 - public path: direct `PublicServiceHost` with module-managed EIP
-- private path: `PrivateServiceHost` behind an ALB, forwarding to the host's Nginx listener
+- private path: `PrivateServiceHost` behind a caller-managed load balancer (ALB), forwarding to the host's Nginx listener
 
 For real deployment and testing, use the operator surface in [`sc-ec2-go-service`](https://github.com/Bh-an/sc-ec2-go-service).
 
@@ -162,7 +162,7 @@ src/
 `v0.3.4`
 
 > [!NOTE]
-> The published `v0.3.4` release line is live-verified through the service repo's fresh-clone public CDK path. Current `main` also includes the private-example launch-template fix that was live-verified in the shared proof stack rerun on `2026-03-27`.
+> The published `v0.3.4` release line is live-verified through the service repo's fresh-clone public CDK path. Current `main` also includes the private-example launch-template fix, and that current-main example flow was live-verified separately in the shared proof stack rerun on `2026-03-27`. The private-example fix is not part of `v0.3.4`.
 
 ## Contributing
 
