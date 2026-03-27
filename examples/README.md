@@ -27,6 +27,7 @@ The proof stack validates the full module surface:
 
 - public path — `PublicServiceHost` with a module-managed EIP
 - private path — `PrivateServiceHost` behind a caller-managed ALB
+- deployable ALB topology — two AZs so the internet-facing listener is valid as written
 
 Both use the same runtime model: Nginx on the host, Docker container on a bridge network.
 

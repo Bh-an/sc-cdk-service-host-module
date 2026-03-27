@@ -14,9 +14,11 @@ export class ConsumerProofStack extends cdk.Stack {
   public constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const nameSuffix = cdk.Names.uniqueId(this).slice(-8).toLowerCase();
+
     const vpc = new ec2.Vpc(this, 'ConsumerVpc', {
       ipAddresses: ec2.IpAddresses.cidr('10.40.0.0/16'),
-      maxAzs: 1,
+      maxAzs: 2,
       natGateways: 1,
       subnetConfiguration: [
         {
@@ -39,7 +41,7 @@ export class ConsumerProofStack extends cdk.Stack {
       dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Public API',
-        namePrefix: 'proof',
+        namePrefix: `proof-public-${nameSuffix}`,
       },
       infrastructure: {
         sharedTags: {
@@ -50,7 +52,7 @@ export class ConsumerProofStack extends cdk.Stack {
         subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
         vpc,
       },
-      serviceName: 'ec2-public-api',
+      serviceName: `ec2-public-api-${nameSuffix}`,
     });
 
     const albSecurityGroup = new ec2.SecurityGroup(this, 'AlbSecurityGroup', {
@@ -75,7 +77,7 @@ export class ConsumerProofStack extends cdk.Stack {
       dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
       identity: {
         displayName: 'Private API',
-        namePrefix: 'proof',
+        namePrefix: `proof-private-${nameSuffix}`,
       },
       infrastructure: {
         sharedTags: {
@@ -86,7 +88,7 @@ export class ConsumerProofStack extends cdk.Stack {
         subnetSelection: { subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS },
         vpc,
       },
-      serviceName: 'ec2-private-api',
+      serviceName: `ec2-private-api-${nameSuffix}`,
     });
 
     const privateAlb = new elbv2.ApplicationLoadBalancer(this, 'PrivateApiAlb', {

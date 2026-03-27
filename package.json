@@ -1,6 +1,6 @@
 {
   "name": "cdk-service-host-module",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Reusable CDK constructs for provisioning a small EC2-hosted Docker service with Nginx, EBS, KMS, and SSM access.",
   "repository": {
     "type": "git",
