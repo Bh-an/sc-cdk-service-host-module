@@ -426,6 +426,7 @@ function renderUserData(props: RenderUserDataInput): string {
     '',
     'nginx -t',
     'systemctl restart nginx',
+    `curl -sf http://localhost:${props.publicPort}/_nginx/health >/dev/null`,
     `curl -sf http://localhost:${props.publicPort}/health >/dev/null`,
     ...(props.postBootstrapCommands ?? []),
     'echo "Bootstrap complete"',

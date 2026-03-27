@@ -131,6 +131,12 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   expect(renderedTemplate).toContain('docker pull ghcr.io/bh-an/ec2-go-service:latest');
   expect(renderedTemplate).toContain('docker rm -f dev-ec2-go-service');
   expect(renderedTemplate).toContain('docker network create');
+  expect(renderedTemplate).toContain('location = /_nginx/health');
+  expect(renderedTemplate).toContain('location = /health');
+  expect(renderedTemplate).toContain('location = /api/v1');
+  expect(renderedTemplate).toContain('location = /version');
+  expect(renderedTemplate).toContain('return 404;');
+  expect(renderedTemplate).toContain('curl -sf http://localhost:80/_nginx/health >/dev/null');
   expect(renderedTemplate).toContain('curl -sf http://localhost:80/health >/dev/null');
 });
 
