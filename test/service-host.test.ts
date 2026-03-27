@@ -90,6 +90,9 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   template.resourceCountIs('AWS::IAM::Role', 1);
   template.resourceCountIs('AWS::KMS::Key', 1);
   template.resourceCountIs('AWS::EC2::SecurityGroup', 1);
+  template.hasResourceProperties('AWS::KMS::Key', {
+    PendingWindowInDays: 7,
+  });
 
   template.hasResourceProperties('AWS::EC2::Instance', {
     BlockDeviceMappings: Match.arrayWith([
@@ -128,6 +131,7 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   expect(renderedTemplate).toContain('"Key":"Environment","Value":"dev"');
   expect(renderedTemplate).toContain('"Key":"ManagedBy","Value":"CDK"');
   expect(renderedTemplate).toContain('"Key":"Team","Value":"platform"');
+  expect(renderedTemplate).toContain('"DeletionPolicy":"Delete"');
   expect(renderedTemplate).toContain('docker pull ghcr.io/bh-an/ec2-go-service:latest');
   expect(renderedTemplate).toContain('docker rm -f dev-ec2-go-service');
   expect(renderedTemplate).toContain('docker network create');
@@ -138,6 +142,26 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
   expect(renderedTemplate).toContain('return 404;');
   expect(renderedTemplate).toContain('curl -sf http://localhost:80/_nginx/health >/dev/null');
   expect(renderedTemplate).toContain('curl -sf http://localhost:80/health >/dev/null');
+});
+
+test('retains module-generated kms key only when explicitly requested', () => {
+  const app = new cdk.App();
+  const stack = new cdk.Stack(app, 'RetainedKeyStack');
+  const vpc = createVpc(stack, 'ExistingVpc', '10.15.0.0/16');
+
+  new PublicServiceHost(stack, 'App', {
+    dockerImage: 'ghcr.io/bh-an/ec2-go-service:latest',
+    infrastructure: {
+      retainGeneratedKmsKey: true,
+      subnetSelection: { subnetType: ec2.SubnetType.PUBLIC },
+      vpc,
+    },
+    serviceName: 'ec2-go-service',
+  });
+
+  const renderedTemplate = JSON.stringify(Template.fromStack(stack).toJSON());
+  expect(renderedTemplate).toContain('"DeletionPolicy":"Retain"');
+  expect(renderedTemplate).toContain('"PendingWindowInDays":7');
 });
 
 test('reuses caller-provided security, role, and kms resources and can disable elastic ip creation', () => {

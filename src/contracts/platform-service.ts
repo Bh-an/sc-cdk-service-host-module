@@ -11,6 +11,7 @@ export interface PlatformServiceIdentity {
 export interface ServiceInfrastructureProps {
   readonly keyPair?: ec2.IKeyPair;
   readonly kmsKey?: kms.IKey;
+  readonly retainGeneratedKmsKey?: boolean;
   readonly role?: iam.IRole;
   readonly securityGroup?: ec2.ISecurityGroup;
   readonly sharedTags?: Record<string, string>;

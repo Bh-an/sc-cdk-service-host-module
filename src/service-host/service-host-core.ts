@@ -1,4 +1,6 @@
 import {
+  Duration,
+  RemovalPolicy,
   Tags,
   aws_ec2 as ec2,
   aws_iam as iam,
@@ -276,6 +278,8 @@ function resolveKey(
   const key = new kms.Key(scope, 'DataKey', {
     description: `KMS key for ${serviceIdentity.resourcePrefix} EBS volumes`,
     enableKeyRotation: true,
+    pendingWindow: Duration.days(7),
+    removalPolicy: infrastructure.retainGeneratedKmsKey ? RemovalPolicy.RETAIN : RemovalPolicy.DESTROY,
   });
   Tags.of(key).add('Name', buildResourceName(serviceIdentity, 'ebs-key'));
   applyTags(key, serviceIdentity.tags);

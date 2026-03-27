@@ -62,6 +62,8 @@ graph TD
 
 Both variants share the same core resource set: EC2 instance, KMS-encrypted EBS volumes, IAM role with SSM access, security group, Nginx reverse proxy, and Docker container bootstrap.
 
+If you do not provide `infrastructure.kmsKey`, the module creates its own EBS key. That generated key now defaults to destroy behavior with a 7-day KMS pending-deletion window. Set `retainGeneratedKmsKey` only when you explicitly want the module-created key to survive stack teardown.
+
 ## Configured Defaults
 
 > [!IMPORTANT]
@@ -78,6 +80,7 @@ Both variants share the same core resource set: EC2 instance, KMS-encrypted EBS 
 | Data volume device | `/dev/xvdf` | `src/service-host/service-host-core.ts:93` |
 | Root volume | 30 GiB, GP3, KMS-encrypted | `src/service-host/service-host-core.ts:125-129` |
 | Data volume | 10 GiB, GP3, KMS-encrypted | `src/service-host/service-host-core.ts:134-138` |
+| Generated KMS key cleanup | Destroy by default, 7-day pending deletion | `src/service-host/service-host-core.ts:276-282` |
 | IMDSv2 | Required | `src/service-host/service-host-core.ts:146` |
 | KMS key rotation | Enabled | `src/service-host/service-host-core.ts:278` |
 | Outbound traffic | Allow all | `src/service-host/service-host-core.ts:315` |
@@ -147,10 +150,10 @@ src/
 
 ## Current Release
 
-`v0.3.3`
+`v0.3.4`
 
 > [!NOTE]
-> Live-verified via the service repo's public CDK deployment path on `2026-03-27`.
+> This release line is locally validated and ready for the next fresh-clone public AWS rerun from the service repo.
 
 ## Contributing
 
