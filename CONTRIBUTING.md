@@ -22,12 +22,14 @@ type(scope): short description
 | `main` | Tagged releases |
 | `dev` | Integration and release prep |
 | `ci-cd` | Workflow and automation changes only |
+| `docs/*` | Short-lived documentation updates |
 
 Feature work branches from `dev` unless CI-only.
 
 ## Pending Branch Protection Plan
 
-This is the intended GitHub policy, but it is not enforced yet:
+> [!NOTE]
+> This is the intended GitHub policy, but it is **not enforced yet**.
 
 - `main` should require pull requests
 - direct pushes to `main` should be blocked

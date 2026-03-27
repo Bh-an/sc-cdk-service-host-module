@@ -45,6 +45,16 @@ Those live in the related repos linked above.
 
 ## Constructs
 
+```mermaid
+graph TD
+    Core["ServiceHostCore<br/><i>EC2 · KMS · EBS · IAM · SG<br/>Nginx + Docker bootstrap</i>"]
+    Public["PublicServiceHost<br/><i>module-managed EIP<br/>0.0.0.0/0 ingress</i>"]
+    Private["PrivateServiceHost<br/><i>VPC-only ingress<br/>no public endpoint</i>"]
+
+    Core --> Public
+    Core --> Private
+```
+
 | Construct | Posture | Default Ingress | Elastic IP |
 |-----------|---------|-----------------|------------|
 | `PublicServiceHost` | Internet-facing | `0.0.0.0/0` on port 80 | Yes (module-managed) |
@@ -54,6 +64,7 @@ Both variants share the same core resource set: EC2 instance, KMS-encrypted EBS 
 
 ## Configured Defaults
 
+> [!IMPORTANT]
 > **Defaults governance** — these values are load-bearing. If you change a default in code, update this table in the same commit.
 
 | Default | Value | Source |
@@ -137,6 +148,9 @@ src/
 ## Current Release
 
 `v0.3.3`
+
+> [!NOTE]
+> Live-verified via the service repo's public CDK deployment path on `2026-03-27`.
 
 ## Contributing
 
