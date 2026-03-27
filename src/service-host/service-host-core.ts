@@ -145,7 +145,6 @@ export function createServiceHostResources(
     instanceType: props.instanceType ?? new ec2.InstanceType('t3.micro'),
     keyPair: props.infrastructure.keyPair,
     machineImage,
-    requireImdsv2: true,
     role,
     securityGroup,
     userData: ec2.UserData.custom(
@@ -168,6 +167,10 @@ export function createServiceHostResources(
     vpc: props.infrastructure.vpc,
     vpcSubnets: props.infrastructure.subnetSelection,
   });
+  const cfnInstance = instance.node.defaultChild as ec2.CfnInstance;
+  cfnInstance.metadataOptions = {
+    httpTokens: 'required',
+  };
 
   Tags.of(instance).add('Name', buildResourceName(serviceIdentity, 'host'));
   applyTags(instance, tags);

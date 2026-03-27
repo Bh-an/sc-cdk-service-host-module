@@ -34,6 +34,12 @@ test('consumer proof example synthesizes a public service and an alb-backed priv
   const app = new cdk.App();
   const stack = new ConsumerProofStack(app, 'ConsumerProofExampleStack');
   const template = Template.fromStack(stack);
+  const templateJson = template.toJSON();
+  const launchTemplateNames = Object.values(
+    templateJson.Resources ?? {},
+  )
+    .filter((resource: any) => resource.Type === 'AWS::EC2::LaunchTemplate')
+    .map((resource: any) => resource.Properties?.LaunchTemplateName);
 
   template.resourceCountIs('AWS::EC2::Instance', 2);
   template.resourceCountIs('AWS::EC2::EIP', 2);
@@ -59,5 +65,6 @@ test('consumer proof example synthesizes a public service and an alb-backed priv
       }),
     ]),
   });
+  expect(launchTemplateNames).toHaveLength(0);
   expect(Object.keys(template.toJSON().Outputs ?? {})).toHaveLength(3);
 });

@@ -106,11 +106,9 @@ test('creates service-local infrastructure and tags when only vpc and subnet sel
     UserData: Match.anyValue(),
   });
 
-  template.hasResourceProperties('AWS::EC2::LaunchTemplate', {
-    LaunchTemplateData: Match.objectLike({
-      MetadataOptions: Match.objectLike({
-        HttpTokens: 'required',
-      }),
+  template.hasResourceProperties('AWS::EC2::Instance', {
+    MetadataOptions: Match.objectLike({
+      HttpTokens: 'required',
     }),
   });
 
