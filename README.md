@@ -65,7 +65,7 @@ Both variants share the same core resource set: EC2 instance, KMS-encrypted EBS 
 | Container IP | `172.30.0.10` | `src/service-host/service-host-core.ts:91` |
 | Data mount path | `/data` | `src/service-host/service-host-core.ts:92` |
 | Data volume device | `/dev/xvdf` | `src/service-host/service-host-core.ts:93` |
-| Root volume | 20 GiB, GP3, KMS-encrypted | `src/service-host/service-host-core.ts:125-129` |
+| Root volume | 30 GiB, GP3, KMS-encrypted | `src/service-host/service-host-core.ts:125-129` |
 | Data volume | 10 GiB, GP3, KMS-encrypted | `src/service-host/service-host-core.ts:134-138` |
 | IMDSv2 | Required | `src/service-host/service-host-core.ts:146` |
 | KMS key rotation | Enabled | `src/service-host/service-host-core.ts:278` |

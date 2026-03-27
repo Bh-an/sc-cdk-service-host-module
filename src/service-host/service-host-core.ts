@@ -122,7 +122,7 @@ export function createServiceHostResources(
     blockDevices: [
       {
         deviceName: '/dev/xvda',
-        volume: ec2.BlockDeviceVolume.ebs(props.rootVolumeSizeGiB ?? 20, {
+        volume: ec2.BlockDeviceVolume.ebs(props.rootVolumeSizeGiB ?? 30, {
           deleteOnTermination: true,
           encrypted: true,
           kmsKey: dataKey,
